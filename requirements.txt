@@ -1,2 +1,2 @@
 mixinsdk==0.1.5
-rumpy>=0.7.9
+mininode>=0.1.1

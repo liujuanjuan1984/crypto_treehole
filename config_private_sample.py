@@ -18,3 +18,8 @@ SAME_PVTKEY = "0x71918e304c3813560eb3c62xxxxa786870b06d9941ca2eb0a77fa60d1991752
 
 # the rum group's seed url, init by fullnode joined or created the group.
 RUM_SEED_URL = f"rum://seed?v=1&e=0&n=0&b=i7pFz0vLTxCwuNUkcrgryg&c=PSkLJ6i_j9vj3QXKBm_bIv587GvtT97VnLMjEExFHeg&g=pPpuGjVLT3Os6tdxI-J7dQ&k=Ask-2-gEfTkCYjLBYd1WIlQ3PI0-Lh-9hvb4X-h0ZU9C&s=5B8QmNCdt-Pty9glyvZkzHtW7CjK61doDN2PAFppFyAOZyFXbH1zGO8jHkBYCSnpafCg7EHy4x8EZB2XWiOseQE&t=Fw48p9yON1Q&a=treehole_from_mixin_pic&y=group_timeline&u=http%3A%2F%2F127.0.0.1%3A57772%3Fjwt%3DeyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhbGxvd0dyb3VwcyI6WyJhNGZhNmUxYS0zNTRiLTRmNzMtYWNlYS1kNzcxMjNlMjdiNzUiXSwiZXhwIjoxODE5MDEyMDA1LCJuYW1lIjoiYWxsb3ctYTRmYTZlMWEtMzU0Yi00ZjczLWFjZWEtZDc3MTIzZTI3Yjc1Iiwicm9sZSI6Im5vZGUifQ.DjlDCIwwMIAoERjaV-H34aZkeyn4AgSL4fNcKWSMvSM"
+
+# about PRIVATE_KEY_TYPE: "SAME" or "DIFF"
+# DIFF: each treehole got a private key
+# SAME: user the same privtea key; better for users to ban the treehole contents
+PRIVATE_KEY_TYPE = "SAME"

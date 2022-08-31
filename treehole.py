@@ -1,49 +1,77 @@
+"""treehole bot"""
 import datetime
 import json
 import logging
 
 import requests
+from mininode import MiniNode
+from mininode.crypto import create_private_key
+from mininode.utils import decode_seed_url, get_filebytes
 from mixinsdk.clients.blaze_client import BlazeClient
 from mixinsdk.clients.http_client import HttpClient_AppAuth
 from mixinsdk.clients.user_config import AppConfig
 from mixinsdk.types.message import MessageView, pack_contact_data, pack_message, pack_text_data
 from mixinsdk.utils import parse_rfc3339_to_datetime
-from rumpy import MiniNode
-from rumpy.utils import get_filebytes
 
-from config import *
+import config_private as PVT
 
 logger = logging.getLogger(__name__)
 
 
+HTTP_ZEROMESH = "https://mixin-api.zeromesh.net"
+BLAZE_ZEROMESH = "wss://mixin-blaze.zeromesh.net"
+
+DEV_MIXIN_ID = PVT.DEV_MIXIN_ID
+RSS_MIXIN_ID = PVT.RSS_MIXIN_ID
+MIXIN_BOT_KEYSTORE = PVT.MIXIN_BOT_KEYSTORE
+
+PRIVATE_KEY_TYPE = PVT.PRIVATE_KEY_TYPE
+SAME_PVTKEY = PVT.SAME_PVTKEY
+RUM_SEED_URL = PVT.RUM_SEED_URL
+GROUP_NAME = decode_seed_url(RUM_SEED_URL)["group_name"]
+
+WELCOME_TEXT = f"""👋 你好，我是 TreeHole 机器人。
+
+向我发送图片，或文本（长度不低于 10 ，不超出 500）；
+我将以密钥签名，把该图片或文本以“树洞”的形式发送到 RUM 种子网络{GROUP_NAME}。
+
+我不存储任何数据，请放心享受真正匿名的“树洞”吧。
+
+想要查阅已发布的树洞或互动？
+请通过 Rum 应用加入种子网络 {GROUP_NAME} 或在 Mixin 上使用 RUM种子网络订阅器 bot：
+"""
+
+
 class TreeHoleBot:
+    """init"""
+
     def __init__(self, mixin_keystore, rum_seedurl):
         self.config = AppConfig.from_payload(mixin_keystore)
         self.rum = MiniNode(rum_seedurl)
+        self.xin = HttpClient_AppAuth(self.config, api_base=HTTP_ZEROMESH)
 
 
 def message_handle_error_callback(error, details):
+    """message_handle_error_callback"""
     logger.error("===== error_callback =====")
-    logger.error(f"error: {error}")
-    logger.error(f"details: {details}")
+    logger.error("error: %s", error)
+    logger.error("details: %s", details)
 
 
 async def message_handle(message):
+    """message_handle"""
     global bot
     action = message["action"]
 
     # messages sent by bot
     if action == "ACKNOWLEDGE_MESSAGE_RECEIPT":
-        # logger.info("Mixin blaze server: received the message")
-        return
+        logger.info("Mixin blaze server: received the message")
 
     if action == "LIST_PENDING_MESSAGES":
-        # logger.info("Mixin blaze server: list pending message")
-        return
+        logger.info("Mixin blaze server: list pending message")
 
     if action == "ERROR":
         logger.warning(message["error"])
-        return
 
     if action != "CREATE_MESSAGE":
         return
@@ -78,7 +106,7 @@ async def message_handle(message):
         return
 
     data = msg_data.get("data")
-    if not (data and type(data) == str):
+    if not (data and isinstance(data, str)):
         await bot.blaze.echo(msg_id)
         return
 
@@ -106,28 +134,30 @@ async def message_handle(message):
             attachment = bot.xin.api.message.read_attachment(attachment_id)
             view_url = attachment["data"]["view_url"]
             content = requests.get(view_url).content  # 图片 content
-            to_send_data = {"content": "#树洞# ", "images": [{"content": content}]}
-        except Exception as e:
+            to_send_data = {"content": "#树洞# ", "images": [content]}
+        except Exception as err:
             to_send_data = None
-            reply_text = "Mixin 服务目前不稳定，请稍后再试，或联系开发者\n" + str(e)
+            reply_text = "Mixin 服务目前不稳定，请稍后再试，或联系开发者\n" + str(err)
             reply_msgs.append(pack_message(pack_contact_data(DEV_MIXIN_ID), msg_cid))
+            logger.warning(err)
 
     if to_send_data:
         if PRIVATE_KEY_TYPE == "SAME":
-            pvtkey = SAME_PVTKEY  # config.py
-        else:  # DIFF
-            pvtkey = bot.rum.create_private_key()
+            pvtkey = SAME_PVTKEY
+        else:
+            pvtkey = create_private_key()
         try:
-            r = bot.rum.send_note(pvtkey, **to_send_data)
-            if "trx_id" in r:
-                print(datetime.datetime.now(), r["trx_id"], "sent_to_rum done.")
-                reply_text = f"树洞已发布到 RUM 种子网络 {GROUP_NAME}\ntrx_id <{r['trx_id']}>"
+            resp = bot.rum.api.send_content(pvtkey, **to_send_data)
+            if "trx_id" in resp:
+                print(datetime.datetime.now(), resp["trx_id"], "sent_to_rum done.")
+                reply_text = f"树洞已发布到 RUM 种子网络 {GROUP_NAME}\ntrx_id <{resp['trx_id']}>"
             else:
-                reply_text = f"树洞发送到 RUM 种子网络时出错，请稍后再试，或联系开发者\n\n{r}"
+                reply_text = f"树洞发送到 RUM 种子网络时出错，请稍后再试，或联系开发者\n\n{resp}"
                 reply_msgs.append(pack_message(pack_contact_data(DEV_MIXIN_ID), msg_cid))
-        except Exception as e:
-            reply_text = f"树洞发送到 RUM 种子网络时出错，请稍后再试，或联系开发者\n\n{e}"
+        except Exception as err:
+            reply_text = f"树洞发送到 RUM 种子网络时出错，请稍后再试，或联系开发者\n\n{err}"
             reply_msgs.append(pack_message(pack_contact_data(DEV_MIXIN_ID), msg_cid))
+            logger.warning(err)
 
     if reply_text:
         reply_msg = pack_message(
@@ -139,14 +169,13 @@ async def message_handle(message):
 
     if reply_msgs:
         for msg in reply_msgs:
-            resp = bot.xin.api.send_messages(msg)
+            bot.xin.api.send_messages(msg)
 
     await bot.blaze.echo(msg_id)
     return
 
 
 bot = TreeHoleBot(MIXIN_BOT_KEYSTORE, RUM_SEED_URL)
-bot.xin = HttpClient_AppAuth(bot.config, api_base=HTTP_ZEROMESH)
 bot.blaze = BlazeClient(
     bot.config,
     on_message=message_handle,
