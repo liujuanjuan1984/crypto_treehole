@@ -1,9 +1,3 @@
-# update the mixin_id of developer
-DEV_MIXIN_ID = "30789e31-xxxx-xxxx-xxxx-1a45e781ae2e"
-
-# update the mixin_id of rss bot
-RSS_MIXIN_ID = "30789e31-xxxx-xxxx-xxxx-1a45e781ae2e"
-
 # the treehole bot's keystore file, init from dashboard of mixin.
 MIXIN_BOT_KEYSTORE = {
     "pin": "123474",
@@ -12,6 +6,14 @@ MIXIN_BOT_KEYSTORE = {
     "pin_token": "q0ij-E04eCWXpq3SXzp2UXnaitt3JMwPlh1a9NsCQ3M",
     "private_key": "nxw2h201ESDA2_ReiExxxxxt06qj5i2Men_SIUP2IZiwgGe0g8pAsItelRNNNgvjyIKYg0eWvtecH9essI-xqg",
 }
+# update the mixin_id of developer
+DEV_MIXIN_ID = "30789e31-xxxx-xxxx-xxxx-1a45e781ae2e"
+
+# update the mixin_id of rss bot
+RSS_MIXIN_ID = "30789e31-xxxx-xxxx-xxxx-1a45e781ae2e"
+
+# the number of mixin_id of rss bot
+RSS_MIXIN_ID_NUM = 7000
 
 # eth account private key to sign trx to rum group
 SAME_PVTKEY = "0x71918e304c3813560eb3c62xxxxa786870b06d9941ca2eb0a77fa60d19917526"
