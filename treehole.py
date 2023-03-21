@@ -1,17 +1,18 @@
 """treehole bot"""
+import base64
 import datetime
 import json
 import logging
 
 import requests
-from mininode import MiniNode
-from mininode.crypto import create_private_key
-from mininode.utils import decode_seed_url, get_filebytes
 from mixinsdk.clients.blaze_client import BlazeClient
 from mixinsdk.clients.http_client import HttpClient_AppAuth
 from mixinsdk.clients.user_config import AppConfig
-from mixinsdk.types.message import MessageView, pack_contact_data, pack_message, pack_text_data
+from mixinsdk.types.message import (MessageView, pack_contact_data,
+                                    pack_message, pack_text_data)
 from mixinsdk.utils import parse_rfc3339_to_datetime
+from quorum_data_py import FeedData as feed
+from quorum_mininode_py import MiniNode
 
 import config_private as PVT
 
@@ -28,7 +29,7 @@ MIXIN_BOT_KEYSTORE = PVT.MIXIN_BOT_KEYSTORE
 PRIVATE_KEY_TYPE = PVT.PRIVATE_KEY_TYPE
 SAME_PVTKEY = PVT.SAME_PVTKEY
 RUM_SEED_URL = PVT.RUM_SEED_URL
-GROUP_NAME = decode_seed_url(RUM_SEED_URL)["group_name"]
+GROUP_NAME = PVT.GROUP_NAME
 
 TEXT_LENGTH_MIN = 10
 TEXT_LENGTH_MAX = 500
@@ -48,9 +49,9 @@ WELCOME_TEXT = f"""👋 hi, I am TreeHole bot
 class TreeHoleBot:
     """init"""
 
-    def __init__(self, mixin_keystore, rum_seedurl):
+    def __init__(self, mixin_keystore, rum_seedurl, pvtkey):
         self.config = AppConfig.from_payload(mixin_keystore)
-        self.rum = MiniNode(rum_seedurl)
+        self.rum = MiniNode(rum_seedurl, pvtkey)
         self.xin = HttpClient_AppAuth(self.config, api_base=HTTP_ZEROMESH)
 
 
@@ -129,7 +130,7 @@ async def message_handle(message):
             to_send_data = {"content": "#树洞# " + text}
     elif category == "PLAIN_IMAGE":
         try:
-            _bytes, _ = get_filebytes(data)
+            _bytes = base64.b64decode(data)
             attachment_id = json.loads(_bytes).get("attachment_id")
             attachment = bot.xin.api.message.read_attachment(attachment_id)
             view_url = attachment["data"]["view_url"]
@@ -141,16 +142,15 @@ async def message_handle(message):
             logger.warning(err)
 
     if to_send_data:
-        if PRIVATE_KEY_TYPE == "SAME":
-            pvtkey = SAME_PVTKEY
-        else:
-            pvtkey = create_private_key()
         try:
-            resp = bot.rum.api.send_content(pvtkey, **to_send_data)
+            post = feed.new_post(**to_send_data)
+            resp = bot.rum.api.post_content(post)
             if "trx_id" in resp:
                 print(datetime.datetime.now(), resp["trx_id"], "sent_to_rum done.")
-                reply_text = f"树洞已生成 trx {resp['trx_id']}，您此后可通过下方 mixin bot 查看 {GROUP_NAME} 动态"
-                reply_msgs.append(pack_message(pack_contact_data(RSS_MIXIN_ID), msg_cid))
+                reply_text = f"树洞已生成 trx {resp['trx_id']}，您可通过 RUM 微博广场 或网页 https://feed.base.one/groups/82f1e717-92d4-42d5-98cc-2457793d5f14 查看已上链成功的信息。"
+                reply_msgs.append(
+                    pack_message(pack_contact_data(RSS_MIXIN_ID), msg_cid)
+                )
             else:
                 is_echo = False
         except Exception as err:
@@ -174,7 +174,7 @@ async def message_handle(message):
     return
 
 
-bot = TreeHoleBot(MIXIN_BOT_KEYSTORE, RUM_SEED_URL)
+bot = TreeHoleBot(MIXIN_BOT_KEYSTORE, RUM_SEED_URL, SAME_PVTKEY)
 bot.blaze = BlazeClient(
     bot.config,
     on_message=message_handle,

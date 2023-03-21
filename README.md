@@ -10,12 +10,10 @@
 - 除了树洞内容，用户的任何隐私数据、行为数据，不采集也不存储
 - 树洞内容，将采用密钥签名（有 2 种实现方案可选），即时推送到 RUM 种子网络上链存储
 
-密钥有两种实现方案可选：
+密钥有两种实现方案可选，可通过 PRIVATE_KEY_TYPE 来控制。
 
 - DIFF: 随机生成的全新密钥（一次性，不存储）
 - SAME: 采用统一密钥
-
-通过 PRIVATE_KEY_TYPE 来控制。
 
 ### 部署
 
@@ -56,7 +54,8 @@ python treehole.py
 #### 依赖
 
 - Mixin [mixinsdk](https://pypi.org/project/mixinsdk/0.1.5/)
-- QuoRum [mininode](https://github.com/liujuanjuan1984/mininode)
+- [quorum-mininode-py](https://github.com/liujuanjuan1984/quorum-mininode-py)
+- [quorum-data-py](https://github.com/liujuanjuan1984/quorum-data-py)
 
 #### 格式化
 
