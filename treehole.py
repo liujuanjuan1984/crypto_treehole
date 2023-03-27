@@ -8,42 +8,19 @@ import requests
 from mixinsdk.clients.blaze_client import BlazeClient
 from mixinsdk.clients.http_client import HttpClient_AppAuth
 from mixinsdk.clients.user_config import AppConfig
-from mixinsdk.types.message import (MessageView, pack_contact_data,
-                                    pack_message, pack_text_data)
+from mixinsdk.types.message import (
+    MessageView,
+    pack_contact_data,
+    pack_message,
+    pack_text_data,
+)
 from mixinsdk.utils import parse_rfc3339_to_datetime
-from quorum_data_py import FeedData as feed
+from quorum_data_py import feed
 from quorum_mininode_py import MiniNode
 
-import config_private as PVT
+from config_private import *
 
 logger = logging.getLogger(__name__)
-
-
-HTTP_ZEROMESH = "https://mixin-api.zeromesh.net"
-BLAZE_ZEROMESH = "wss://mixin-blaze.zeromesh.net"
-
-DEV_MIXIN_ID = PVT.DEV_MIXIN_ID
-RSS_MIXIN_ID = PVT.RSS_MIXIN_ID
-MIXIN_BOT_KEYSTORE = PVT.MIXIN_BOT_KEYSTORE
-
-PRIVATE_KEY_TYPE = PVT.PRIVATE_KEY_TYPE
-SAME_PVTKEY = PVT.SAME_PVTKEY
-RUM_SEED_URL = PVT.RUM_SEED_URL
-GROUP_NAME = PVT.GROUP_NAME
-
-TEXT_LENGTH_MIN = 10
-TEXT_LENGTH_MAX = 500
-
-WELCOME_TEXT = f"""👋 hi, I am TreeHole bot
-
-向我发送图片，或文本（长度不低于 {TEXT_LENGTH_MIN} ，不超出 {TEXT_LENGTH_MAX}）；
-我将以密钥签名，把该图片或文本以“树洞”的形式发送到 RUM 种子网络{GROUP_NAME}。
-
-我不存储任何数据，请放心享受真正匿名的“树洞”吧。
-
-想要查阅已发布的树洞或互动？
-请通过 Rum 应用加入种子网络 {GROUP_NAME} 或在 Mixin 上使用 bot：{PVT.RSS_MIXIN_ID_NUM}
-"""
 
 
 class TreeHoleBot:
@@ -51,7 +28,10 @@ class TreeHoleBot:
 
     def __init__(self, mixin_keystore, rum_seedurl, pvtkey):
         self.config = AppConfig.from_payload(mixin_keystore)
-        self.rum = MiniNode(rum_seedurl, pvtkey)
+        if PRIVATE_KEY_TYPE == "SAME":
+            self.rum = MiniNode(rum_seedurl, pvtkey)
+        else:
+            self.rum = MiniNode(rum_seedurl)
         self.xin = HttpClient_AppAuth(self.config, api_base=HTTP_ZEROMESH)
 
 
