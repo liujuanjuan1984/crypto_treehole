@@ -1,8 +1,6 @@
 # TreeHole 树洞
 
-一个基于 Mixin 和 Rum 种子网络的 树洞 Bot demo 的源码。采用 GPLv3 协议开源。
-
-### 简介
+一个基于 Mixin 和 Rum 种子网络的 树洞 Bot。
 
 这个树洞的特点：
 
@@ -44,31 +42,17 @@ cd tree_hole
 3、启动服务：无需守护进程，将自动持续运行。
 
 ```bash
-python treehole.py
+python treehole.py &
 ```
 
-### 其它
+### Source
 
-不建议提交 PR，欢迎 fork 后自行修改使用。
+- Mixin python sdk https://pypi.org/project/mixinsdk/0.1.5/
+- quorum data module for python: https://github.com/liujuanjuan1984/quorum-data-py
+- quorum mininode sdk for python: https://github.com/liujuanjuan1984/quorum-mininode-py 
+- and more ...  https://github.com/okdaodine/awesome-quorum
 
-#### 依赖
+### License
 
-- Mixin [mixinsdk](https://pypi.org/project/mixinsdk/0.1.5/)
-- [quorum-mininode-py](https://github.com/liujuanjuan1984/quorum-mininode-py)
-- [quorum-data-py](https://github.com/liujuanjuan1984/quorum-data-py)
+This work is released under the `MIT` license. A copy of the license is provided in the [LICENSE](https://github.com/liujuanjuan1984/tree_hole/blob/master/LICENSE) file.
 
-#### 格式化
-
-Install:
-
-```bash
-pip install black
-pip install isort
-```
-
-Format:
-
-```bash
-isort .
-black -l 120 -t py39 .
-```

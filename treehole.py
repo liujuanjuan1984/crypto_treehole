@@ -20,7 +20,9 @@ from quorum_mininode_py import MiniNode
 
 from config_private import *
 
+__version__ = "0.1.1"
 logger = logging.getLogger(__name__)
+logger.info("treehole bot version: %s", __version__)
 
 
 class TreeHoleBot:
