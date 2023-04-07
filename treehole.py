@@ -20,9 +20,10 @@ from quorum_mininode_py import MiniNode
 
 from config_private import *
 
-__version__ = "0.1.1"
+__version__ = "0.1.2"
 logger = logging.getLogger(__name__)
-logger.info("treehole bot version: %s", __version__)
+
+logger.info("Version: %s", __version__)
 
 
 class TreeHoleBot:
@@ -128,8 +129,8 @@ async def message_handle(message):
             post = feed.new_post(**to_send_data)
             resp = bot.rum.api.post_content(post)
             if "trx_id" in resp:
-                print(datetime.datetime.now(), resp["trx_id"], "sent_to_rum done.")
-                reply_text = f"树洞已生成 trx {resp['trx_id']}，您可通过 RUM 微博广场 或网页 https://feed.base.one/groups/82f1e717-92d4-42d5-98cc-2457793d5f14 查看已上链成功的信息。"
+                logger.info("sent_to_rum done.%s", resp["trx_id"])
+                reply_text = f"树洞已生成 trx {resp['trx_id']}，您可通过 RUM 微博广场 或网页 https://feed.base.one/groups/{bot.rum.group.group_id } 查看已上链成功的信息。"
                 reply_msgs.append(
                     pack_message(pack_contact_data(RSS_MIXIN_ID), msg_cid)
                 )

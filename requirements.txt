@@ -1,3 +1,3 @@
 mixinsdk==0.1.5
-quorum-mininode-py
-quorum-data-py
+quorum-mininode-py>=1.2.1
+quorum-data-py>=1.1.5
