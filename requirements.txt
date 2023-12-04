@@ -1,3 +1,4 @@
-mixinsdk==0.1.5
+requests
+mixinsdk==0.2.1
 quorum-mininode-py>=1.2.1
 quorum-data-py>=1.1.5

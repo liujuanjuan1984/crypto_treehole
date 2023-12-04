@@ -1,0 +1,15 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+requests = "*"
+mixinsdk = "0.2.1"
+quorum-data-py = "*"
+quorum-mininode-py = "*"
+
+[dev-packages]
+
+[requires]
+python_version = "3.9"

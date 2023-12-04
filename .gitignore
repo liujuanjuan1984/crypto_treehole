@@ -130,4 +130,4 @@ dmypy.json
 
 # my
 *temp*.py
-config_private.py
+*live*.py
