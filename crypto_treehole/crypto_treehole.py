@@ -62,6 +62,7 @@ class TreeHoleBot(BlazeClient):
         same_tag: str = "#树洞 ",
         welcome_text: str = None,
         reply_text: str = None,
+        last_active_seconds: int = 10,  # 单个连接的发送消息间隔
     ):
         self.config = AppConfig.from_payload(mixin_bot_keystore)
         super().__init__(
@@ -82,6 +83,8 @@ class TreeHoleBot(BlazeClient):
         self.rum_same_pvtkey = rum_same_pvtkey
         self.same_tag = same_tag
         self.reply_text = reply_text
+        self.last_active = {}  # uuid: datetime
+        self.last_active_seconds = last_active_seconds
 
     def run(self):
         super().run_forever(2)
@@ -155,6 +158,14 @@ class TreeHoleBot(BlazeClient):
             except Exception as err:
                 to_send_data = None
                 logger.warning(err)
+
+        if conversation_id not in self.last_active:
+            self.last_active[conversation_id] = datetime.datetime.now()
+        else:
+            delta = datetime.datetime.now() - self.last_active[conversation_id]
+            if delta.total_seconds() < self.last_active_seconds:
+                reply_text = "发送太快了，请稍后再试"
+                to_send_data = None
 
         if to_send_data:
             try:

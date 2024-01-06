@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setuptools.setup(
     name="crypto_treehole",
-    version="0.2.5",
+    version="0.2.6",
     author="liujuanjuan1984",
     author_email="qiaoanlu@163.com",
     description="a treehole bot server for mixin messenger and rum system (both crypto products)",
